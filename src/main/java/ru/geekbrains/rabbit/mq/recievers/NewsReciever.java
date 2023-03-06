@@ -2,6 +2,8 @@ package ru.geekbrains.rabbit.mq.recievers;
 
 import com.rabbitmq.client.*;
 
+import java.util.Scanner;
+
 public class NewsReciever {
 
     private static final String EXCHANGE_NAME = "newsExchanger";
@@ -16,7 +18,20 @@ public class NewsReciever {
         channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
         String queueName =channel.queueDeclare().getQueue();
 
-        channel.queueBind(queueName,EXCHANGE_NAME,"php");
+
+        Scanner scanner = new Scanner(System.in);
+        String topic = "";
+        while (true){
+            String msg = scanner.nextLine();
+            String[] arr = msg.split(" ",2);
+            if(msg.startsWith("set_topic")){
+                channel.queueBind(queueName,EXCHANGE_NAME,arr[1]);
+            }else if(msg.equals("start")){
+                System.out.println("go");
+                break;
+            }
+        }
+
 
         System.out.println("Fine");
         DeliverCallback deliverCallback =(consumerTag,delivery)->{
