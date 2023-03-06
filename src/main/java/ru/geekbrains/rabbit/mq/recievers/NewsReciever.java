@@ -19,6 +19,8 @@ public class NewsReciever {
         String queueName =channel.queueDeclare().getQueue();
 
 
+        System.out.println("Введите команду 'set_topic *topic*' для добавления топика подписок.\n" +
+                "Используйте команду 'start' для запуска");
         Scanner scanner = new Scanner(System.in);
         String topic = "";
         while (true){
@@ -33,7 +35,6 @@ public class NewsReciever {
         }
 
 
-        System.out.println("Fine");
         DeliverCallback deliverCallback =(consumerTag,delivery)->{
             String message = new String(delivery.getBody(), "UTF-8");
             System.out.println("Received "+message);
@@ -42,10 +43,17 @@ public class NewsReciever {
         channel.basicConsume(queueName,true,deliverCallback,consumerTag ->{
         });
 
-        /*while (true){
-
-        }*/
-
-
+        System.out.println("Введите команду 'add_topic *topic*' для добавления топика подписок.\n"+
+                "Введите команду 'delete_topic *topic*' для удаления топика из подписок."
+        );
+        while (true) {
+            String msg = scanner.nextLine();
+            String[] arr = msg.split(" ", 2);
+            if (msg.startsWith("add_topic")) {
+                channel.queueBind(queueName, EXCHANGE_NAME, arr[1]);
+            }else if(msg.startsWith("delete_topic")) {
+                channel.queueUnbind(queueName, EXCHANGE_NAME, arr[1]);
+            }
+        }
     }
 }
